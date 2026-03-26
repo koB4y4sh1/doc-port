@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="keywords" content="AI, Gemini, Embedding" />
+  <meta name="date" content="2026-03-26" />
+  <title>Gemini Embedding 2 まとめ</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(17, 24, 39, 0.72);
+      --panel-strong: rgba(15, 23, 42, 0.92);
+      --text: #e5eefc;
+      --muted: #9fb0d1;
+      --line: rgba(148, 163, 184, 0.18);
+      --accent: #76a9ff;
+      --accent-2: #8b5cf6;
+      --good: #43d3a3;
+      --warn: #ffb86b;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --max: 1200px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background:
+        radial-gradient(circle at top left, rgba(118, 169, 255, 0.16), transparent 32%),
+        radial-gradient(circle at top right, rgba(139, 92, 246, 0.14), transparent 30%),
+        linear-gradient(180deg, #0a0f1e 0%, #0d1326 100%);
+      color: var(--text);
+      font-family:
+        Inter, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic UI",
+        "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.7;
+    }
+
+    a {
+      color: #bcd2ff;
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 72px 0 28px;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(19, 28, 53, 0.92), rgba(13, 20, 40, 0.78));
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      padding: 40px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: -20% auto auto -10%;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(118, 169, 255, 0.22), transparent 60%);
+      pointer-events: none;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(118, 169, 255, 0.12);
+      border: 1px solid rgba(118, 169, 255, 0.2);
+      color: #d9e7ff;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 12px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      max-width: 900px;
+    }
+
+    h2 {
+      font-size: clamp(24px, 3vw, 34px);
+      margin-bottom: 18px;
+    }
+
+    h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .lead {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--muted);
+      max-width: 860px;
+      margin: 14px 0 0;
+    }
+
+    .summary-grid,
+    .card-grid,
+    .metric-grid,
+    .pricing-grid,
+    .links-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 28px;
+    }
+
+    .metric-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pricing-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .links-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .section {
+      padding: 24px 0;
+    }
+
+    .card,
+    .metric,
+    .pricing-card,
+    .link-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .metric {
+      padding: 22px;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .metric .value {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .metric .sub {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .kicker {
+      color: #b9c8eb;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .pill-list,
+    .list,
+    .compact-list {
+      padding-left: 1.2em;
+      margin: 0;
+    }
+
+    .pill-list li,
+    .list li,
+    .compact-list li {
+      margin: 8px 0;
+      color: var(--muted);
+    }
+
+    .compact-list li strong,
+    .list li strong {
+      color: var(--text);
+    }
+
+    .callout {
+      margin-top: 18px;
+      border-left: 4px solid var(--accent);
+      padding: 14px 16px;
+      background: rgba(118, 169, 255, 0.08);
+      border-radius: 0 14px 14px 0;
+      color: #dce8ff;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #dfe8fb;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    td {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    td strong {
+      color: var(--text);
+    }
+
+    .highlight {
+      color: var(--good);
+      font-weight: 700;
+    }
+
+    .warning {
+      color: var(--warn);
+      font-weight: 700;
+    }
+
+    .footer {
+      padding: 28px 0 60px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .footer small {
+      display: block;
+      margin-top: 8px;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 980px) {
+      .summary-grid,
+      .metric-grid,
+      .card-grid,
+      .pricing-grid,
+      .links-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        padding: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <div class="hero-card">
+        <div class="badge-row">
+          <span class="badge">Google / Vertex AI</span>
+          <span class="badge">Gemini Embedding 2 Preview</span>
+          <span class="badge">Multimodal Embeddings</span>
+          <span class="badge">RAG / Semantic Search</span>
+        </div>
+
+        <h1>Gemini Embedding 2 をわかりやすく整理すると、<br>「複数メディアを同じ意味空間で扱える埋め込みモデル」です。</h1>
+
+        <p class="lead">
+          Gemini Embedding 2 は、テキストだけでなく、画像・動画・音声・PDF までを
+          <strong>1つの統一された埋め込み空間</strong>に変換できるのが最大の特徴です。
+          これにより、従来の「テキスト検索中心のRAG」から、
+          <strong>マルチモーダル検索・推薦・分類</strong>まで広げやすくなります。
+        </p>
+
+        <div class="summary-grid">
+          <div class="metric">
+            <div class="label">モデルID</div>
+            <div class="value">gemini-embedding-2-preview</div>
+            <div class="sub">Vertex AI 上の Preview 提供</div>
+          </div>
+          <div class="metric">
+            <div class="label">主な入力</div>
+            <div class="value">Text / Image / Audio / Video / PDF</div>
+            <div class="sub">複数形式を単一の意味空間へ変換</div>
+          </div>
+          <div class="metric">
+            <div class="label">最大入力長</div>
+            <div class="value">8,192 tokens</div>
+            <div class="sub">長めのテキストにも対応</div>
+          </div>
+          <div class="metric">
+            <div class="label">出力次元</div>
+            <div class="value">最大 3,072</div>
+            <div class="sub">必要に応じて縮小指定も可能</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="card-grid">
+        <article class="card">
+          <div class="kicker">Overview</div>
+          <h2>まず押さえるべきポイント</h2>
+          <ul class="list">
+            <li><strong>Gemini Embedding 2 Preview</strong> は、Google の最初の<strong>統一マルチモーダル埋め込みモデル</strong>です。</li>
+            <li>テキスト・画像・動画・音声・PDF を同じベクトル空間に写像できるため、<strong>異種データ横断の検索</strong>がしやすくなります。</li>
+            <li>用途は、<strong>RAG、意味検索、類似検索、推薦、分類</strong>が中心です。</li>
+            <li>Vertex AI のモデルページでは、<strong>2026-03-10 公開の Public Preview</strong> と記載されています。</li>
+          </ul>
+          <div class="callout">
+            重要なのは「何を生成するか」ではなく、「意味的に近いものをどれだけ正確に近づけられるか」です。
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="kicker">Important distinction</div>
+          <h2>混同しやすい点</h2>
+          <ul class="list">
+            <li><strong>Gemini API の Embeddings ページ</strong>には、現時点で <code>gemini-embedding-001</code> を使った例が多く掲載されています。</li>
+            <li>一方で、<strong>モデル一覧</strong>や <strong>Vertex AI</strong> では <strong>Gemini Embedding 2 Preview</strong> が案内されています。</li>
+            <li>そのため、実装時は <strong>「サンプルコードのモデル名」</strong> と <strong>「使いたい最新モデル」</strong> を分けて確認する必要があります。</li>
+          </ul>
+          <div class="callout">
+            つまり、<strong>ドキュメント全体では埋め込みAPIの概念説明と旧来の実装例が混在</strong>しています。<br>
+            実際の採用時は、対象環境で <strong>Gemini Embedding 2 が利用可能か</strong> を先に確認するのが安全です。
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <div class="kicker">Why it matters</div>
+        <h2>何が嬉しいのか</h2>
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="label">検索の拡張</div>
+            <div class="value">Text → Image</div>
+            <div class="sub">文章で画像やPDF内容を探しやすい</div>
+          </div>
+          <div class="metric">
+            <div class="label">RAGの拡張</div>
+            <div class="value">Multimodal RAG</div>
+            <div class="sub">文書だけでなく画像・動画文脈も候補化</div>
+          </div>
+          <div class="metric">
+            <div class="label">推薦</div>
+            <div class="value">Unified Similarity</div>
+            <div class="sub">商品画像と説明文をまとめて扱える</div>
+          </div>
+          <div class="metric">
+            <div class="label">運用面</div>
+            <div class="value">1 Model</div>
+            <div class="sub">用途別に複数の埋め込み系統を分けにくい場面で有利</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card-grid">
+        <article class="card">
+          <div class="kicker">Specifications</div>
+          <h2>主要スペック</h2>
+          <ul class="compact-list">
+            <li><strong>入力形式:</strong> Text / Images / Audio / Video / PDF</li>
+            <li><strong>出力:</strong> Embeddings</li>
+            <li><strong>最大入力トークン:</strong> 8,192</li>
+            <li><strong>最大シーケンス長:</strong> 8,192 tokens</li>
+            <li><strong>出力次元:</strong> 最大 3,072</li>
+            <li><strong>結果サイズの調整:</strong> <code>output_dimensionality</code> で小さめの次元も指定可能</li>
+            <li><strong>課金形態:</strong> Standard PayGo 対応</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="kicker">Media handling</div>
+          <h2>メディア別の扱い</h2>
+          <ul class="compact-list">
+            <li><strong>画像:</strong> 最大 6 枚、MIME は <code>image/png</code> / <code>image/jpeg</code></li>
+            <li><strong>PDF:</strong> 1ファイル、最大 6 ページ</li>
+            <li><strong>動画:</strong> 音声あり最大 80 秒、音声なし最大 120 秒</li>
+            <li><strong>文書OCR:</strong> ドキュメント入力から OCR 読み取りに対応</li>
+            <li><strong>動画音声:</strong> 音声トラック抽出とフレームとの連携をサポート</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <div class="kicker">Use cases</div>
+        <h2>代表的なユースケース</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>用途</th>
+                <th>何をするか</th>
+                <th>Gemini Embedding 2 が効く理由</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>マルチモーダル検索</strong></td>
+                <td>テキストで画像・動画・PDF を探す</td>
+                <td>異なるメディアを同じ意味空間で比較できるため</td>
+              </tr>
+              <tr>
+                <td><strong>RAG</strong></td>
+                <td>質問に対して関連文書や関連画像を候補化する</td>
+                <td>文書だけでなく視覚情報も検索対象にできるため</td>
+              </tr>
+              <tr>
+                <td><strong>推薦</strong></td>
+                <td>商品画像や説明文から類似商品を出す</td>
+                <td>見た目と説明をまとめて近さ評価に使いやすいため</td>
+              </tr>
+              <tr>
+                <td><strong>分類</strong></td>
+                <td>画像分類・動画分類・文書整理</td>
+                <td>埋め込み後の近傍探索やクラスタリングに流し込みやすいため</td>
+              </tr>
+              <tr>
+                <td><strong>コンテンツ検索</strong></td>
+                <td>動画内の関連フレームや類似動画を探す</td>
+                <td>動画とテキスト検索をつなげやすいため</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          Vertex AI の埋め込み概要ページでも、<strong>画像検索・推薦・動画コンテンツ検索</strong> などが代表例として示されています。
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card-grid">
+        <article class="card">
+          <div class="kicker">Task optimization</div>
+          <h2>埋め込みの精度を上げる考え方</h2>
+          <p style="color: var(--muted); margin-top: 0;">
+            Gemini API の Embeddings ドキュメントでは、用途に合わせて <strong>task type</strong> を指定すると
+            埋め込み品質を最適化しやすいと説明されています。
+          </p>
+          <ul class="compact-list">
+            <li><strong>SEMANTIC_SIMILARITY:</strong> 意味的な近さ比較</li>
+            <li><strong>CLASSIFICATION:</strong> 分類向け</li>
+            <li><strong>CLUSTERING:</strong> クラスタリング向け</li>
+            <li><strong>RETRIEVAL_DOCUMENT:</strong> 検索対象ドキュメント向け</li>
+            <li><strong>RETRIEVAL_QUERY:</strong> 検索クエリ向け</li>
+            <li><strong>CODE_RETRIEVAL_QUERY:</strong> コード検索向け</li>
+            <li><strong>QUESTION_ANSWERING / FACT_VERIFICATION:</strong> QA・検証用途向け</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="kicker">Design guidance</div>
+          <h2>実務での見方</h2>
+          <ul class="compact-list">
+            <li><strong>検索用途:</strong> クエリ側と文書側で task type を分ける設計が重要です。</li>
+            <li><strong>保存コスト:</strong> ベクトルDB容量が気になる場合は、次元数の縮小を検討できます。</li>
+            <li><strong>マルチモーダルRAG:</strong> テキストだけのRAGよりも前処理設計が重要になります。</li>
+            <li><strong>評価:</strong> Recall@K や nDCG などの検索指標で必ず事前評価すべきです。</li>
+          </ul>
+          <div class="callout">
+            <strong>「最新モデルだから自動で精度が上がる」とは限りません。</strong><br>
+            実際の品質は、データ整形・chunking・メタデータ設計・評価方法に大きく依存します。
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="pricing-grid">
+        <article class="pricing-card">
+          <div class="kicker">Pricing</div>
+          <h2>Gemini Embedding 2 の料金感</h2>
+          <ul class="compact-list">
+            <li><strong>Text input:</strong> $0.2 / 1M tokens</li>
+            <li><strong>Image input:</strong> $0.00012 / image</li>
+            <li><strong>Video input:</strong> $0.00079 / frame</li>
+            <li><strong>Audio input:</strong> $0.00016 / sec</li>
+            <li><strong>Output tokens:</strong> <span class="highlight">課金なし</span></li>
+          </ul>
+        </article>
+
+        <article class="pricing-card">
+          <div class="kicker">Comparison hint</div>
+          <h2>比較の見どころ</h2>
+          <ul class="compact-list">
+            <li>従来のテキスト埋め込みと比較すると、<strong>Gemini Embedding 2 はマルチモーダル対応</strong>が価値の中心です。</li>
+            <li>単純なテキストRAGだけなら、既存の text embedding 系も比較候補になります。</li>
+            <li>ただし、画像やPDF、動画も同時に検索対象にしたいなら、統一モデルの運用メリットが大きいです。</li>
+          </ul>
+          <div class="callout">
+            料金比較は「1件あたり」ではなく、<strong>実データ量・メディア種別・再埋め込み頻度</strong>で見るべきです。
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <div class="kicker">Takeaway</div>
+        <h2>要点を一言でまとめると</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>観点</th>
+                <th>要点</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>何のモデルか</strong></td>
+                <td>テキスト・画像・音声・動画・PDF を同じベクトル空間に落とす統一マルチモーダル埋め込みモデル</td>
+              </tr>
+              <tr>
+                <td><strong>何に向くか</strong></td>
+                <td>意味検索、マルチモーダルRAG、推薦、類似検索、分類</td>
+              </tr>
+              <tr>
+                <td><strong>強み</strong></td>
+                <td>異種メディア横断の検索とRAGを一つの設計で扱いやすい</td>
+              </tr>
+              <tr>
+                <td><strong>注意点</strong></td>
+                <td>ドキュメント上は旧モデル例も混在しているため、利用モデル名と実装例を必ず切り分ける</td>
+              </tr>
+              <tr>
+                <td><strong>実務判断</strong></td>
+                <td>テキストだけなら比較検討余地あり。マルチモーダル要件があるなら有力候補</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="links-grid">
+        <article class="link-card">
+          <div class="kicker">Sources</div>
+          <h3>参照した公式ページ</h3>
+          <ul class="compact-list">
+            <li><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/embedding-2" target="_blank" rel="noopener noreferrer">Gemini Embedding 2 | Vertex AI</a></li>
+            <li><a href="https://ai.google.dev/gemini-api/docs/embeddings" target="_blank" rel="noopener noreferrer">Embeddings | Gemini API</a></li>
+            <li><a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener noreferrer">Models | Gemini API</a></li>
+          </ul>
+        </article>
+
+        <article class="link-card">
+          <div class="kicker">More</div>
+          <h3>補足で見ておくページ</h3>
+          <ul class="compact-list">
+            <li><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/embeddings" target="_blank" rel="noopener noreferrer">Embeddings APIs overview | Vertex AI</a></li>
+            <li><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/embeddings/get-multimodal-embeddings" target="_blank" rel="noopener noreferrer">Get multimodal embeddings | Vertex AI</a></li>
+            <li><a href="https://cloud.google.com/vertex-ai/generative-ai/pricing" target="_blank" rel="noopener noreferrer">Vertex AI Pricing</a></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <small>
+        ※ このページは Google 公式ドキュメントをもとに、人に説明しやすいように再構成した要約です。<br>
+        ※ Preview の提供内容・料金・対応範囲は変わる可能性があるため、実装前は必ず最新の公式ドキュメントを再確認してください。
+      </small>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="keywords" content="AI, VS Code, Copilot" />
+  <meta name="date" content="2026-03-26" />
+  <title>VS Code は AI でどう開発を加速しているのか</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121935;
+      --panel-2: #1a2347;
+      --text: #e8ecf8;
+      --muted: #b6c0e0;
+      --accent: #78a6ff;
+      --accent-2: #9bffcf;
+      --border: #2a3566;
+      --warn: #ffd479;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1020 0%, #101735 100%);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(120,166,255,0.18), rgba(155,255,207,0.08));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #d8e4ff;
+      background: rgba(120,166,255,0.16);
+      border: 1px solid rgba(120,166,255,0.3);
+      padding: 6px 10px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.3;
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin: 0 0 16px;
+    }
+
+    h3 {
+      font-size: 18px;
+      margin: 0 0 10px;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+    }
+
+    .lead {
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .card {
+      grid-column: span 12;
+      background: rgba(18, 25, 53, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+    }
+
+    .card.half {
+      grid-column: span 6;
+    }
+
+    .card.third {
+      grid-column: span 4;
+    }
+
+    .point-list,
+    .check-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .point-list li,
+    .check-list li {
+      margin-bottom: 10px;
+    }
+
+    .summary-box {
+      background: rgba(155,255,207,0.06);
+      border: 1px solid rgba(155,255,207,0.2);
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .warning-box {
+      background: rgba(255,212,121,0.08);
+      border: 1px solid rgba(255,212,121,0.25);
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .flow span {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .flow .arrow {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      padding: 10px 0;
+      font-weight: bold;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .kpi .item {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .kpi .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent-2);
+      margin-bottom: 6px;
+    }
+
+    .kpi .label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .footer {
+      margin-top: 28px;
+      font-size: 14px;
+      color: #9aa7d1;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    @media (max-width: 860px) {
+      .card.half,
+      .card.third {
+        grid-column: span 12;
+      }
+
+      .kpi {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <div class="badge">Article Summary</div>
+      <h1>VS Code は AI を「コード生成」だけでなく、開発運用全体に使っている</h1>
+      <p class="lead">
+        この記事の本質は、VS Code チームが AI エージェントを使って
+        開発速度を上げただけでなく、リリース運用・課題整理・レビュー・検証まで含めた
+        開発フロー全体を作り替えた、という点です。
+      </p>
+      <div class="summary-box">
+        <strong>結論:</strong>
+        VS Code チームは AI により、10年間続けた月次リリースから週次リリースへ移行しました。
+        ただし、単純に速くしたのではなく、
+        「並列実行」「中間ドキュメント削減」「運用自動化」「品質ハーネス」「人間の最終判断」
+        をセットで整備したことが重要です。
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>1. 何が変わったのか</h2>
+        <p>
+          以前の VS Code は、長年にわたり月次リリースのリズムで運用されていました。
+          しかし AI エージェント活用により、品質基準を保ったまま週次リリースへ移行しています。
+        </p>
+        <div class="flow">
+          <span>従来: 月次で計画</span>
+          <span class="arrow">→</span>
+          <span>実装</span>
+          <span class="arrow">→</span>
+          <span>テスト</span>
+          <span class="arrow">→</span>
+          <span>エンドゲーム</span>
+          <span class="arrow">→</span>
+          <span>出荷</span>
+        </div>
+        <div class="flow">
+          <span>現在: AIで並列実行</span>
+          <span class="arrow">→</span>
+          <span>短サイクル検証</span>
+          <span class="arrow">→</span>
+          <span>週次リリース</span>
+        </div>
+        <div class="summary-box">
+          <strong>ポイント:</strong>
+          リリース頻度の向上そのものが目的ではなく、
+          バグ修正や新機能をユーザーへ数日単位で届けられるようにしたことが狙いです。
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>2. 記事で示された6つの学び</h2>
+        <ol class="point-list">
+          <li><strong>自分を並列化する:</strong> 会議前に複数のエージェント作業を起動し、待ち時間を減らす。</li>
+          <li><strong>中間成果物を減らす:</strong> 会議メモ → Issue → 仕様書 → 実装、という段階を短縮する。</li>
+          <li><strong>速度増加で膨らむ雑務を自動化する:</strong> 課題整理、コミット要約、リリースノート、コードレビューを AI で支援する。</li>
+          <li><strong>速度より先に品質ハーネスを作る:</strong> テスト、Golden Scenario、レビューゲートを先に整備する。</li>
+          <li><strong>責任の持ち方を再定義する:</strong> PM や他領域の開発者も貢献しやすくなるが、最終責任はエンジニアが持つ。</li>
+          <li><strong>最後の“良さ”は人間が判断する:</strong> AI は正しさを見やすいが、体験価値やプロダクトの気持ちよさは人間が見る。</li>
+        </ol>
+      </article>
+
+      <article class="card half">
+        <h2>3. 実務での使い方: 並列で仕事を進める</h2>
+        <p>
+          記事では、会議に入る前に 3〜4 本のエージェント作業を起動し、
+          会議中も別セッション・worktree・クラウド上で並列実行する運用が紹介されています。
+        </p>
+        <ul class="check-list">
+          <li>バグ修正を複数並列で投げる</li>
+          <li>機能プロトタイプを先に作らせる</li>
+          <li>Issue のトリアージを自動で回す</li>
+          <li>会議後に出力をレビューして再指示する</li>
+        </ul>
+        <div class="warning-box">
+          <strong>重要:</strong>
+          これは AI に丸投げしているのではなく、
+          人が「何を任せるか」「どれを採用するか」を高速に判断するための運用です。
+        </div>
+      </article>
+
+      <article class="card half">
+        <h2>4. 中間ドキュメントより PR を重視</h2>
+        <p>
+          従来の PM フローは、仕様書や PRD を作り、Issue を切って、実装を依頼する流れでした。
+          しかし記事では、PM 自身が AI エージェントを使ってプロトタイプ PR を作る流れが強調されています。
+        </p>
+        <div class="flow">
+          <span>従来</span>
+          <span class="arrow">→</span>
+          <span>仕様書</span>
+          <span class="arrow">→</span>
+          <span>Issue</span>
+          <span class="arrow">→</span>
+          <span>開発依頼</span>
+        </div>
+        <div class="flow">
+          <span>現在</span>
+          <span class="arrow">→</span>
+          <span>AIで試作</span>
+          <span class="arrow">→</span>
+          <span>PR作成</span>
+          <span class="arrow">→</span>
+          <span>設計レビュー</span>
+        </div>
+        <p>
+          つまり、文書で仮説を説明するより、
+          動く PR を出して会話を前に進める方が速い、という考え方です。
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>5. 自動化している運用領域</h2>
+        <p>VS Code チームは、実装以外の周辺業務も AI で自動化しています。</p>
+        <ul class="point-list">
+          <li><strong>コミット要約:</strong> 過去24時間の複数リポジトリの変更を収集し、要約する。</li>
+          <li><strong>リリースノート作成:</strong> 変更要約を Insiders の変更履歴や日次更新に流用する。</li>
+          <li><strong>Issue トリアージ:</strong> 重複検知、担当推定、ラベル候補付与を自動実行する。</li>
+          <li><strong>GitHub 上の補助 UI:</strong> 重複候補や担当候補を GitHub 画面上で見られるようにする。</li>
+          <li><strong>エディタ内コマンド:</strong> VS Code 内から Issue 整理や重複確認を行えるようにする。</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>6. 数字で見る変化</h2>
+        <p>
+          記事では GitHub の公開データ比較として、
+          2025年1月〜3月と 2026年1月〜3月を比べると、コミット数は 2.2 倍、
+          クローズした Issue 数は約 2.9 倍になったと示されています。
+        </p>
+        <div class="kpi">
+          <div class="item">
+            <div class="value">2.2x</div>
+            <div class="label">コミット数の増加</div>
+          </div>
+          <div class="item">
+            <div class="value">2.9x</div>
+            <div class="label">クローズした Issue 数の増加</div>
+          </div>
+          <div class="item">
+            <div class="value">Weekly</div>
+            <div class="label">月次から週次リリースへ移行</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card half">
+        <h2>7. 品質を落とさないための仕組み</h2>
+        <ul class="point-list">
+          <li><strong>自動検証:</strong> Playwright MCP を使うエージェントが UI を開き、スクリーンショットを取り、期待動作と比較する。</li>
+          <li><strong>テスト強化:</strong> 単体・結合テストに加え、重要なユーザーフローを Golden Scenario として定義する。</li>
+          <li><strong>マージ後検証:</strong> これまで人がやっていた確認を、エージェントにも走らせる。</li>
+          <li><strong>自動コードレビュー:</strong> Copilot のレビュー結果を人間レビュー前に解消する。</li>
+        </ul>
+      </article>
+
+      <article class="card half">
+        <h2>8. それでも人間が残る理由</h2>
+        <p>
+          記事で繰り返し強調されているのは、
+          AI が見つけやすいのは「正しいかどうか」であり、
+          人間が見るべきなのは「本当に気持ちよい体験かどうか」という点です。
+        </p>
+        <div class="summary-box">
+          <strong>AIの役割:</strong> 重複検知、要約、コードレビュー、検証、自動修正<br />
+          <strong>人間の役割:</strong> アーキテクチャ判断、品質責任、体験価値の判断
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>9. この記事から学べる実務上の示唆</h2>
+        <ol class="point-list">
+          <li>AI 導入の本質はコード生成ではなく、開発プロセス全体の再設計にある。</li>
+          <li>AI で速度を上げる前に、テスト・検証・レビューの仕組みを先に作るべき。</li>
+          <li>仕様書を厚くするより、試作 PR を早く出して議論する方が学習速度は高い。</li>
+          <li>PM やマネージャーも、エージェントにより実装プロセスへ直接参加しやすくなる。</li>
+          <li>最終的な責任移譲は起きておらず、責任の所在は依然として人間側にある。</li>
+        </ol>
+      </article>
+
+      <article class="card">
+        <h2>10. ひとことで説明するなら</h2>
+        <p class="lead">
+          VS Code チームは、AI を「補助ツール」としてではなく、
+          開発・運用・品質保証を再構成するための実行基盤として使っている。
+        </p>
+      </article>
+    </section>
+
+    <footer class="footer">
+      参考元:
+      <a href="https://code.visualstudio.com/blogs/2026/03/13/how-VS-Code-Builds-with-AI" target="_blank" rel="noopener noreferrer">
+        How VS Code Builds with AI
+      </a>
+      <br />
+      このHTMLは、他者説明用に記事内容を要約・再構成したものです。
+    </footer>
+  </main>
+</body>
+</html>
