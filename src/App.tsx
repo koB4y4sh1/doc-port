@@ -23,6 +23,7 @@ interface Article {
   date: string;
   tags: string[];
   styles: string;
+  conclusion?: string;
 }
 
 const parseArticles = (): Article[] => {
@@ -39,13 +40,13 @@ const parseArticles = (): Article[] => {
       tag.remove();
     });
 
-    // Extract title from first h1
-    const title = doc.querySelector('h1')?.textContent || slug;
+    // Extract title from <title> tag (User Request)
+    const title = doc.title || doc.querySelector('h1')?.textContent || slug;
     
-    // Extract summary from first p
+    // Extract summary for preview (Home page cards) - DO NOT REMOVE from doc
     const summary = doc.querySelector('p')?.textContent || '';
-    
-    // Metadata Extraction (Support both Meta tags and Div)
+
+    // Metadata Extraction
     const metaKeywords = doc.querySelector('meta[name="keywords"]')?.getAttribute('content');
     const metaDate = doc.querySelector('meta[name="date"]')?.getAttribute('content');
     const divMetadata = doc.querySelector('.article-metadata');
@@ -57,10 +58,8 @@ const parseArticles = (): Article[] => {
     
     const date = metaDate || divMetadata?.getAttribute('data-date') || '2026-03-25';
 
-    // Cleanup
+    // Cleanup: Only remove metadata div, keep everything else for rendering
     if (divMetadata) divMetadata.remove();
-    const h1 = doc.querySelector('h1');
-    if (h1) h1.remove();
 
     return {
       id: String(index + 1),
@@ -78,6 +77,20 @@ const parseArticles = (): Article[] => {
 const articles = parseArticles();
 
 // --- Components ---
+
+const GitHubIcon = ({ size = 20, className = "" }: { size?: number; className?: string }) => (
+  <svg 
+    role="img" 
+    viewBox="0 0 24 24" 
+    width={size} 
+    height={size} 
+    fill="currentColor" 
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.82 1.102.82 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+  </svg>
+);
 
 const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const location = useLocation();
@@ -286,6 +299,15 @@ const ArticlePage = () => {
     return doc.body.innerHTML;
   }, [article]);
 
+  useEffect(() => {
+    if (article) {
+      document.title = `${article.title} | DocPort`;
+    }
+    return () => {
+      document.title = 'DocPort';
+    };
+  }, [article]);
+
   // Inject custom styles if present
   useEffect(() => {
     if (article?.styles) {
@@ -341,44 +363,27 @@ const ArticlePage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       key={article.id}
-      className={cn("mx-auto px-4 lg:px-8", hasCustomStyles ? "max-w-[1200px]" : "max-w-5xl")}
+      className={cn("mx-auto", hasCustomStyles ? "max-w-[1100px]" : "max-w-4xl")}
     >
-      <header className={cn("mb-12", hasCustomStyles && "max-w-5xl mx-auto")}>
-        <div className="flex flex-wrap items-center gap-4 mb-6">
-          <span className="px-3 py-1 bg-indigo-600/20 text-indigo-400 text-xs font-bold rounded-full uppercase tracking-wider">
-            Article
-          </span>
-          <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-            <Clock size={14} />
-            <span>{article.date}</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {article.tags.map(tag => (
-              <span key={tag} className="px-2 py-0.5 bg-navy-800 text-slate-400 text-[10px] font-bold rounded-md border border-navy-700">
-                #{tag}
-              </span>
-            ))}
-          </div>
+      {/* Minimal Metadata Bar */}
+      <div className="flex flex-wrap items-center gap-6 mb-8 px-4 lg:px-0">
+        <div className="flex items-center gap-2 text-slate-500 text-xs font-bold uppercase tracking-widest">
+          <Clock size={14} className="text-indigo-500" />
+          <span>{article.date}</span>
         </div>
-        <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6">
-          {article.title}
-        </h1>
-        {article.summary && (
-          <div className="bg-navy-900/80 border border-navy-800 rounded-[2rem] p-8 lg:p-10 shadow-xl">
-            <div className="inline-flex items-center px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-8">
-              Article Summary
-            </div>
-            <p className="text-slate-200 text-xl lg:text-2xl font-medium leading-snug">
-              {article.summary}
-            </p>
-          </div>
-        )}
-      </header>
+        <div className="flex flex-wrap gap-3">
+          {article.tags.map(tag => (
+            <span key={tag} className="text-indigo-400/70 text-[10px] font-black uppercase tracking-[0.2em]">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      </div>
 
       <div className="relative">
         <div 
           className={cn(
-            `article-id-${article.id} w-full`,
+            `article-id-${article.id} article-render-area w-full px-4 lg:px-0`,
             !hasCustomStyles && "prose prose-invert prose-headings:text-white prose-p:text-slate-400 prose-strong:text-indigo-400 prose-a:text-indigo-400 max-w-none"
           )}
           dangerouslySetInnerHTML={{ __html: processedContent }}
@@ -446,7 +451,7 @@ const HomePage = () => {
   }, [searchQuery, selectedTag]);
 
   return (
-    <div className="space-y-12">
+    <div className="max-w-4xl mx-auto space-y-12">
       <section className="text-center py-12">
         <motion.h1 
           initial={{ opacity: 0, scale: 0.9 }}
@@ -581,10 +586,15 @@ export default function App() {
             </Link>
 
             <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 border border-navy-800 rounded-full text-[10px] font-bold text-indigo-400 uppercase tracking-tighter">
-                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                Auto-Scan Active
-              </div>
+              <a 
+                href="https://github.com/koB4y4sh1/doc-port" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2.5 px-4 py-2 bg-navy-900 border border-navy-800 rounded-full text-slate-400 hover:text-white hover:border-indigo-500/50 transition-all group shadow-lg shadow-black/20"
+              >
+                <GitHubIcon size={16} className="group-hover:text-indigo-400 transition-colors" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">GitHub</span>
+              </a>
             </div>
           </div>
         </header>
@@ -593,7 +603,7 @@ export default function App() {
         
         {/* Main Content Area */}
         <main className="flex-1 flex justify-center p-6 lg:p-12 overflow-y-auto">
-          <div className="w-full max-w-4xl">
+          <div className="w-full">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/article/:slug" element={<ArticlePage />} />
@@ -602,9 +612,20 @@ export default function App() {
         </main>
 
         {/* Footer */}
-        <footer className="py-12 border-t border-navy-800/50 text-center">
-          <p className="text-slate-500 text-sm mb-2">&copy; 2026 DocPort. Built for modern documentation.</p>
-          <p className="text-slate-600 text-xs uppercase tracking-widest">Powered by Static Auto-Scan</p>
+        <footer className="py-12 border-t border-navy-800/50 text-center space-y-4">
+          <p className="text-slate-500 text-sm">&copy; 2026 DocPort. Built for modern documentation.</p>
+          <div className="flex justify-center gap-6">
+            <a 
+              href="https://github.com/koB4y4sh1/doc-port" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-slate-600 hover:text-indigo-400 transition-colors text-xs font-bold uppercase tracking-widest"
+            >
+              <GitHubIcon size={16} />
+              GitHub
+            </a>
+          </div>
+          <p className="text-slate-600 text-xs uppercase tracking-widest">Created by koB4y4sh1</p>
         </footer>
       </div>
     </Router>

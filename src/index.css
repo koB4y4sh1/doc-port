@@ -25,4 +25,78 @@
   .prose p {
     @apply text-slate-400 leading-relaxed mb-4;
   }
+
+  /* imag.png inspired styles */
+  .article-render-area .hero {
+    @apply bg-gradient-to-br from-indigo-500/15 to-purple-500/5 border border-navy-800 rounded-[2rem] p-8 lg:p-12 mb-10 overflow-hidden relative;
+  }
+  
+  .article-render-area .hero::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-400;
+  }
+
+  .article-render-area .badge {
+    @apply inline-flex items-center px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 border border-indigo-500/30;
+  }
+
+  .article-render-area h1 {
+    @apply text-3xl lg:text-5xl font-black text-white mb-6 tracking-tight leading-[1.15];
+  }
+
+  .article-render-area .lead {
+    @apply text-lg lg:text-xl text-slate-300 leading-relaxed mb-8 font-medium;
+  }
+
+  .article-render-area .summary-box {
+    @apply bg-navy-900/80 border border-navy-800 p-6 rounded-2xl text-slate-400 text-sm leading-relaxed relative overflow-hidden;
+  }
+  
+  .article-render-area .summary-box strong {
+    @apply text-indigo-400 font-bold mr-2;
+  }
+
+  .article-render-area .grid {
+    @apply grid grid-cols-1 md:grid-cols-12 gap-6 mt-12;
+  }
+
+  .article-render-area .card {
+    @apply md:col-span-12 bg-navy-900/40 border border-navy-800 rounded-3xl p-8 hover:border-navy-700 transition-colors;
+  }
+
+  .article-render-area .card.half {
+    @apply md:col-span-6;
+  }
+
+  .article-render-area .card.third {
+    @apply md:col-span-4;
+  }
+
+  .article-render-area .flow {
+    @apply flex flex-wrap items-center gap-3 my-6;
+  }
+
+  .article-render-area .flow span {
+    @apply px-4 py-2 bg-navy-800 border border-navy-700 rounded-xl text-sm text-slate-300;
+  }
+
+  .article-render-area .flow .arrow {
+    @apply bg-transparent border-none p-0 text-indigo-500 font-bold;
+  }
+
+  .article-render-area .kpi {
+    @apply grid grid-cols-1 sm:grid-cols-3 gap-4 my-8;
+  }
+
+  .article-render-area .kpi .item {
+    @apply bg-navy-900/60 border border-navy-800 rounded-2xl p-6 text-center;
+  }
+
+  .article-render-area .kpi .value {
+    @apply text-3xl font-black text-indigo-400 mb-1;
+  }
+
+  .article-render-area .kpi .label {
+    @apply text-[10px] font-bold text-slate-500 uppercase tracking-widest;
+  }
 }
