@@ -29,10 +29,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      background:
-        radial-gradient(circle at top left, rgba(118, 169, 255, 0.16), transparent 32%),
-        radial-gradient(circle at top right, rgba(139, 92, 246, 0.14), transparent 30%),
-        linear-gradient(180deg, #0a0f1e 0%, #0d1326 100%);
+      background: linear-gradient(180deg, #0b1020 0%, #101735 100%);
       color: var(--text);
       font-family:
         Inter, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic UI",
@@ -227,6 +224,11 @@
       background: rgba(118, 169, 255, 0.08);
       border-radius: 0 14px 14px 0;
       color: #dce8ff;
+    }
+
+    .muted-copy {
+      color: var(--muted);
+      margin-top: 0;
     }
 
     .table-wrap {
@@ -490,7 +492,7 @@
         <article class="card">
           <div class="kicker">Task optimization</div>
           <h2>埋め込みの精度を上げる考え方</h2>
-          <p style="color: var(--muted); margin-top: 0;">
+          <p class="muted-copy">
             Gemini API の Embeddings ドキュメントでは、用途に合わせて <strong>task type</strong> を指定すると
             埋め込み品質を最適化しやすいと説明されています。
           </p>

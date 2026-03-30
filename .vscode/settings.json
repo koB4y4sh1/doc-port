@@ -1,3 +1,10 @@
 {
+    // CSS ファイル
+    // Tailwind CSS の @apply / @theme などを許可する
+    "css.lint.unknownAtRules": "ignore", 
+    "scss.lint.unknownAtRules": "ignore",
+    "less.lint.unknownAtRules": "ignore",
+
+    // Live Server
     "liveServer.settings.port": 5501
 }

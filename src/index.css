@@ -26,16 +26,6 @@
     @apply text-slate-400 leading-relaxed mb-4;
   }
 
-  /* imag.png inspired styles */
-  .article-render-area .hero {
-    @apply bg-gradient-to-br from-indigo-500/15 to-purple-500/5 border border-navy-800 rounded-[2rem] p-8 lg:p-12 mb-10 overflow-hidden relative;
-  }
-  
-  .article-render-area .hero::before {
-    content: '';
-    @apply absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-400;
-  }
-
   .article-render-area .badge {
     @apply inline-flex items-center px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 border border-indigo-500/30;
   }
